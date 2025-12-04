@@ -27,6 +27,6 @@ class Order extends Model
 
     public function shipmentLogs()
     {
-        return $this->hasMany(ShipmentLog::class);
+        return $this->hasMany(ShipmentLog::class)->orderBy('created_at', 'desc');
     }
 }

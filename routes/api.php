@@ -91,7 +91,7 @@ Route::middleware(['auth.jwt.cookie'])
 Route::middleware(['auth.jwt.cookie', 'role:cs2'])
     ->controller(ShipmentController::class)
     ->group(function () {
-        Route::get('orders/ready', 'readyOrders');
-        Route::post('orders/{orderId}/status/{status}', 'updateStatus');
-        Route::get('orders/{orderId}/shipment/logs', 'logs');
+        Route::get('shipment', 'readyOrders');
+        Route::put('shipment/{orderId}/status/{status}', 'updateStatus');
+        Route::get('shipment/{orderId}/logs', 'logs');
     });

@@ -2,42 +2,86 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Order\OrderService;
 use Illuminate\Http\Request;
-use App\Models\Order;
 use App\Services\Shipment\ShipmentService;
 
 class ShipmentController extends Controller
 {
     protected $shipmentService;
+    protected $orderService;
 
-    public function __construct(ShipmentService $shipmentService)
-    {
+    public function __construct(
+        ShipmentService $shipmentService,
+        OrderService $orderService
+    ) {
         $this->shipmentService = $shipmentService;
+        $this->orderService = $orderService;
     }
 
     public function readyOrders()
     {
-        return response()->json($this->shipmentService->getReadyOrders());
+        try {
+            $shipment = $this->shipmentService->getReadyOrders();
+            return response()->json(successResponse("Get packing order successfully", $shipment->toArray(), true));
+        } catch (\Exception $e) {
+            $response = errorResponse($e);
+            return response()->json($response, $response['status_code']);
+        }
     }
 
     public function updateStatus(Request $request, $orderId, $status)
     {
-        $order = Order::findOrFail($orderId);
+        $data = [
+            "status" => $status,
+            "notes" => $request->notes ?? null
+        ];
 
-        $updatedOrder = $this->shipmentService->updateShipmentStatus(
-            $order,
-            $status,
-            $request->notes ?? null
-        );
+        $rules = [
+            'status' => 'required|in:packing,shipped,delivered',
+            'notes' => 'nullable|string'
+        ];
 
-        return response()->json([
-            'message' => " Shipment updated to {$status}",
-            'data' => $updatedOrder
-        ]);
+        $errorResponse = validateFormData($data, $rules);
+        if (!empty($errorResponse)) {
+            return $errorResponse;
+        };
+
+        try {
+            $order = $this->orderService->find($orderId);
+            $updatedOrder = $this->shipmentService->updateShipmentStatus(
+                $order,
+                $status,
+                $request->notes ?? null
+            );
+
+            return response()->json(
+                successResponse(
+                    "Shipment logs for order {$order->order_number} has been change to {$status} status",
+                    $updatedOrder
+                )
+            );
+        } catch (\Exception $e) {
+            $response = errorResponse($e);
+            return response()->json($response, $response['status_code']);
+        }
     }
 
     public function logs($orderId)
     {
-        return response()->json($this->shipmentService->getShipmentLogs($orderId));
+        $data = ["order_id" => $orderId];
+        $rules = ['order_id' => 'required|integer|exists:orders,id',];
+
+        $errorResponse = validateFormData($data, $rules);
+        if (!empty($errorResponse)) {
+            return $errorResponse;
+        };
+        try {
+            $shipment = $this->shipmentService->getShipmentLogs($orderId);
+            return response()->json(successResponse("Get shipment log by order successfully", $shipment->toArray()));
+        } catch (\Exception $e) {
+            $response = errorResponse($e);
+            return response()->json($response, $response['status_code']);
+        }
     }
 }

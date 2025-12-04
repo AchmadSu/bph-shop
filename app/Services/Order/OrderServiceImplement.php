@@ -44,6 +44,7 @@ class OrderServiceImplement extends Service implements OrderService
         throw new Exception("You do not have any permission to access this endpoint", 403);
       }
       $order->load('items.product');
+      $order->load('shipmentLogs');
       return $order;
     } catch (\Exception $e) {
       throw $e;
@@ -109,11 +110,6 @@ class OrderServiceImplement extends Service implements OrderService
             throw new \Exception("Failed to reduce stock for product id {$item->product_id}");
           }
         }
-
-        $order->shipmentLogs()->create([
-          'status' => 'packing',
-          'notes'  => 'Verified by CS Layer 1',
-        ]);
       }
 
       $status = $isApproved ? 'verified' : 'cancelled';

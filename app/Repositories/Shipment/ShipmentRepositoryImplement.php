@@ -25,7 +25,11 @@ class ShipmentRepositoryImplement extends Eloquent implements ShipmentRepository
 
     public function getReadyOrders()
     {
-        return $this->order->where('status', 'paid')->get();
+        try {
+            return $this->order->where('status', 'packing')->paginate(15);
+        } catch (\Exception $e) {
+            throw $e;
+        }
     }
 
     public function createLog(int $orderId, string $status, ?string $notes)
