@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Repositories\Order\OrderRepository;
 use App\Services\Payment\PaymentService;
 use App\Services\Order\OrderService;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
 class PaymentController extends Controller
 {
@@ -72,13 +72,14 @@ class PaymentController extends Controller
         };
 
         try {
-            $user = $request->user();
-            $payment = $this->paymentService->verifyPayment($paymentId, $user->id, $data['approved'], $data['notes']);
-            if ($data['approved']) {
+            $payment = DB::transaction(function () use ($request, $paymentId, $data) {
+                $user = $request->user();
+                $payment = $this->paymentService->verifyPayment($paymentId, $user->id, $data['approved'], $data['notes'], false);
                 $order = $payment->order;
-                $this->orderService->verifyPayment($order, $user->id);
-            }
-            return response()->json(successResponse("Verify payment successfully", $payment->fresh()));
+                $this->orderService->verifyPayment($order, $data['approved'], false);
+                return $payment->fresh();
+            });
+            return response()->json(successResponse("Verify payment successfully", $payment));
         } catch (\Exception $e) {
             $response = errorResponse($e);
             return response()->json($response, $response['status_code']);

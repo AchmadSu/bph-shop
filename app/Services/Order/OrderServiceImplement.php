@@ -87,32 +87,46 @@ class OrderServiceImplement extends Service implements OrderService
     });
   }
 
-  public function verifyPayment(Order $order)
+  public function verifyPayment(Order $order, bool $isApproved, $useTransaction = true)
   {
-    return DB::transaction(function () use ($order) {
+    $action = function () use ($order, $isApproved) {
+
       if ($order->status !== 'awaiting_verification' && $order->status !== 'pending_payment') {
         throw new \Exception('Order is not in verification state');
       }
 
-      foreach ($order->items as $item) {
-        $product = $this->productRepo->find($item->product_id);
-        if ($product->stock < $item->quantity) {
-          throw new \Exception("Insufficient stock for product {$product->name}");
+      if ($isApproved) {
+        foreach ($order->items as $item) {
+          $product = $this->productRepo->find($item->product_id);
+          if ($product->stock < $item->quantity) {
+            throw new \Exception("Insufficient stock for product {$product->name}");
+          }
         }
+
+        foreach ($order->items as $item) {
+          $ok = $this->productRepo->reduceStock($item->product_id, $item->quantity);
+          if (!$ok) {
+            throw new \Exception("Failed to reduce stock for product id {$item->product_id}");
+          }
+        }
+
+        $order->shipmentLogs()->create([
+          'status' => 'packing',
+          'notes'  => 'Verified by CS Layer 1',
+        ]);
       }
 
-      foreach ($order->items as $item) {
-        $ok = $this->productRepo->reduceStock($item->product_id, $item->quantity);
-        if (!$ok) {
-          throw new \Exception("Failed to reduce stock for product id {$item->product_id}");
-        }
-      }
-      $this->mainRepository->updateStatus($order, 'verified');
-      $order->shipmentLogs()->create(['status' => 'packing', 'notes' => 'Verified by CS Layer 1']);
+      $status = $isApproved ? 'verified' : 'cancelled';
+      $this->mainRepository->updateStatus($order, $status);
 
       return $order->fresh();
-    });
+    };
+
+    return $useTransaction
+      ? DB::transaction(fn() => $action())
+      : $action();
   }
+
 
   public function cancelExpiredOrders()
   {

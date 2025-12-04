@@ -78,7 +78,7 @@ Route::middleware(['auth.jwt.cookie'])
     ->group(function () {
         Route::post('orders/{orderId}/payments', 'uploadProof');
         Route::middleware('role:cs1')->group(function () {
-            Route::post('payments/{paymentId}/verify', 'verify');
+            Route::put('payments/{paymentId}/verify', 'verify');
         });
     });
 
