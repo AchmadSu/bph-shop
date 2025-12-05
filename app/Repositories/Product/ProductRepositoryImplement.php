@@ -4,6 +4,7 @@ namespace App\Repositories\Product;
 
 use LaravelEasyRepository\Implementations\Eloquent;
 use App\Models\Product;
+use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ProductRepositoryImplement extends Eloquent implements ProductRepository
@@ -21,10 +22,23 @@ class ProductRepositoryImplement extends Eloquent implements ProductRepository
         $this->model = $model;
     }
 
-    public function paginate($perPage = 15)
+    public function getAll()
     {
         try {
-            $product = $this->model->where('is_active', true)->paginate($perPage) ?? [];
+            $product = $this->model->paginate(15);
+            return $product;
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function getAvailableProduct()
+    {
+        try {
+            $product = $this->model
+                ->where('is_active', true)
+                ->where('stock', '>', 0)
+                ->paginate($param['paginate'] ?? 15);
             return $product;
         } catch (\Exception $e) {
             throw $e;
@@ -35,8 +49,8 @@ class ProductRepositoryImplement extends Eloquent implements ProductRepository
     {
         try {
             return $this->model->findOrFail($id);
-        } catch (ModelNotFoundException) {
-            [];
+        } catch (Exception $e) {
+            throw $e;
         }
     }
 
@@ -49,22 +63,20 @@ class ProductRepositoryImplement extends Eloquent implements ProductRepository
         }
     }
 
-    public function update($id, array $data)
-    {
-        try {
-            $p = $this->find($id);
-            $p->update($data);
-            return $p;
-        } catch (\Exception $e) {
-            throw $e;
-        }
-    }
-
     public function reduceStock(int $productId, int $qty)
     {
         try {
             return $this->model->where('id', $productId)->where('stock', '>=', $qty)
                 ->decrement('stock', $qty);
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function bulkInsert(array $rows)
+    {
+        try {
+            return $this->model->insert($rows);
         } catch (\Exception $e) {
             throw $e;
         }

@@ -33,17 +33,16 @@ class PaymentController extends Controller
             $required = ['proof'];
 
             $errorResponse = checkArrayRequired($data, $required);
-            if (!empty($errorResponse)) {
-                return $errorResponse;
-            };
+            if ($errorResponse) return $errorResponse;
+
 
             $rules = [
                 'proof' => 'required|file|mimes:jpg,jpeg,png,pdf|max:4096'
             ];
+
             $errorResponse = validateFormData($data, $rules);
-            if (!empty($errorResponse)) {
-                return $errorResponse;
-            };
+            if ($errorResponse) return $errorResponse;
+
             $payment = $this->paymentService->uploadProof($order, $data['proof']);
             return response()->json(successResponse("Upload payment evidence successfully", $payment));
         } catch (\Exception $e) {
@@ -58,18 +57,15 @@ class PaymentController extends Controller
         $required = ['approved', 'notes'];
 
         $errorResponse = checkArrayRequired($data, $required);
-        if (!empty($errorResponse)) {
-            return $errorResponse;
-        };
+        if ($errorResponse) return $errorResponse;
+
 
         $rules = [
             'approved' => 'required|boolean',
             'notes' => 'nullable|string'
         ];
         $errorResponse = validateFormData($data, $rules);
-        if (!empty($errorResponse)) {
-            return $errorResponse;
-        };
+        if ($errorResponse) return $errorResponse;
 
         try {
             $payment = DB::transaction(function () use ($request, $paymentId, $data) {

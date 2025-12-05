@@ -4,7 +4,12 @@ namespace App\Services\Product;
 
 use LaravelEasyRepository\BaseService;
 
-interface ProductService extends BaseService{
+interface ProductService extends BaseService
+{
 
-    // Write something awesome :)
+    public function getProducts();
+    public function getAvailableProducts();
+    public function getProductById($id);
+    public function createProduct(array $data);
+    public function importFromExcel($file);
 }

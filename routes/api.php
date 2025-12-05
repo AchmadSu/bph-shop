@@ -29,13 +29,15 @@ Route::controller(UserController::class)->group(function () {
 | PRODUCT ROUTES (ADMIN ONLY)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth.jwt.cookie', 'role:admin'])
+Route::middleware(['auth.jwt.cookie'])
     ->controller(ProductController::class)
     ->group(function () {
         Route::get('products', 'index');
         Route::get('products/{id}', 'show');
-        Route::post('products', 'store');
-        Route::post('products/import', 'importExcel');
+        Route::middleware('role:admin')->group(function () {
+            Route::post('products', 'store');
+            Route::post('products/import', 'importExcel');
+        });
     });
 
 

@@ -2,54 +2,95 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Product\ProductService;
+use Exception;
 use Illuminate\Http\Request;
-use App\Repositories\Product\ProductRepository;
 
 class ProductController extends Controller
 {
-    protected $repo;
+    protected $service;
 
-    public function __construct(ProductRepository $repo)
+    public function __construct(ProductService $service)
     {
-        $this->repo = $repo;
+        $this->service = $service;
     }
 
-    public function index(Request $request)
+    public function index()
     {
-        $perPage = $request->get('per_page', 12);
-        return $this->repo->paginate($perPage);
+        try {
+            $user = auth()->user();
+            $products = match (true) {
+                $user->hasExactRoles('buyer') => $this->service->getAvailableProducts(),
+                $user->hasAnyRole(['admin', 'cs1', 'cs2']) => $this->service->getProducts(),
+                default => throw new Exception("You do not have any permission to access this endpoint", 403)
+            };
+            return response()->json(successResponse("Get products successfully", $products, true));
+        } catch (\Exception $e) {
+            $response = errorResponse($e);
+            return response()->json($response, $response['status_code']);
+        }
     }
 
     public function show($id)
     {
-        return $this->repo->find($id);
+        $rules = [
+            'id' => 'required|integer|exists:orders,id',
+        ];
+
+        $errorResponse = validateFormData(['id' => $id], $rules);
+        if ($errorResponse) return $errorResponse;
+
+        try {
+            $product = $this->service->find($id);
+            return response()->json(successResponse("Get product {$product->name} successfully", $product));
+        } catch (\Exception $e) {
+            $response = errorResponse($e);
+            return response()->json($response, $response['status_code']);
+        }
     }
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'name' => 'required|string',
-            'sku' => 'required|string|unique:products,sku',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
-            'is_active' => 'sometimes|boolean'
-        ]);
+        $data = $request->all();
 
-        return response()->json($this->repo->create($data), 201);
+        $rules = [
+            'name'  => 'required|string',
+            'price' => 'required|numeric',
+            'stock' => 'required|integer'
+        ];
+
+        $errorResponse = validateFormData($data, $rules);
+        if ($errorResponse) return $errorResponse;
+        try {
+            $product = $this->service->createProduct($data);
+            return response()->json(successResponse("Create product successfully", $product));
+        } catch (\Exception $e) {
+            $response = errorResponse($e);
+            return response()->json($response, $response['status_code']);
+        }
     }
 
-    public function update(Request $request, $id)
+    public function importExcel(Request $request)
     {
-        $data = $request->validate([
-            'name' => 'sometimes|string',
-            'sku' => "sometimes|string|unique:products,sku,{$id}",
-            'description' => 'nullable|string',
-            'price' => 'sometimes|numeric|min:0',
-            'stock' => 'sometimes|integer|min:0',
-            'is_active' => 'sometimes|boolean'
-        ]);
+        $data = $request->all();
+        $required = ['file'];
 
-        return response()->json($this->repo->update($id, $data));
+        $errorResponse = checkArrayRequired($data, $required);
+        if ($errorResponse) return $errorResponse;
+
+        $rules = [
+            'file' => 'required|file|mimes:xlsx,csv'
+        ];
+
+        $errorResponse = validateFormData($data, $rules);
+        if ($errorResponse) return $errorResponse;
+
+        try {
+            $this->service->importFromExcel($data['file']);
+            return response()->json(successResponse("Product imported successfully"));
+        } catch (\Exception $e) {
+            $response = errorResponse($e);
+            return response()->json($response, $response['status_code']);
+        }
     }
 }

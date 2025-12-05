@@ -40,7 +40,7 @@ class OrderServiceImplement extends Service implements OrderService
     try {
       $auth = auth()->user();
       $order = $this->mainRepository->find($id);
-      if ($auth->hasRole('buyer') && ($order->user_id !== $auth->id)) {
+      if ($auth->hasExactRoles('buyer') && ($order->user_id !== $auth->id)) {
         throw new Exception("You do not have any permission to access this endpoint", 403);
       }
       $order->load('items.product');

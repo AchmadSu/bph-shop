@@ -36,6 +36,7 @@ class OrderController extends Controller
         if (!empty($errorResponse)) {
             return $errorResponse;
         };
+
         try {
             $order = $this->orderService->find($id);
             return response()->json(successResponse("Get order {$order->order_number} successfully", $order));

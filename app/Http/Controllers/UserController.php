@@ -19,16 +19,8 @@ class UserController extends Controller
     {
         $data = $request->all();
         $required = ['email', 'password'];
-        $missing = checkArrayRequired($data, $required);
-
-        if (!empty($missing)) {
-            $errorResponse = [
-                "status_code" => 400,
-                "success" => false,
-                "message" => "Missing required fields: " . implode(', ', $missing)
-            ];
-            return response()->json($errorResponse, $errorResponse['status_code']);
-        }
+        $errorResponse = checkArrayRequired($data, $required);
+        if ($errorResponse) return $errorResponse;
 
         try {
             $cookie = $this->service->login($data);

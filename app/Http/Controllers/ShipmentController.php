@@ -43,9 +43,7 @@ class ShipmentController extends Controller
         ];
 
         $errorResponse = validateFormData($data, $rules);
-        if (!empty($errorResponse)) {
-            return $errorResponse;
-        };
+        if ($errorResponse) return $errorResponse;
 
         try {
             $order = $this->orderService->find($orderId);
@@ -73,9 +71,8 @@ class ShipmentController extends Controller
         $rules = ['order_id' => 'required|integer|exists:orders,id',];
 
         $errorResponse = validateFormData($data, $rules);
-        if (!empty($errorResponse)) {
-            return $errorResponse;
-        };
+        if ($errorResponse) return $errorResponse;
+
         try {
             $shipment = $this->shipmentService->getShipmentLogs($orderId);
             return response()->json(successResponse("Get shipment log by order successfully", $shipment->toArray()));
