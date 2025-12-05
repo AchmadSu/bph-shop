@@ -4,6 +4,7 @@ namespace App\Services\Product;
 
 use LaravelEasyRepository\Service;
 use App\Repositories\Product\ProductRepository;
+use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
@@ -65,25 +66,52 @@ class ProductServiceImplement extends Service implements ProductService
     }
   }
 
+  public function updateProduct(int $id, array $data)
+  {
+    try {
+      return DB::transaction(function () use ($id, $data) {
+        return $this->mainRepository->updateProduct($id, $data);
+      });
+    } catch (\Exception $e) {
+      throw $e;
+    }
+  }
+
   public function importFromExcel($file)
   {
     try {
-      $rows = [];
-      $data = \Maatwebsite\Excel\Facades\Excel::toArray([], $file)[0];
+      $reader = ReaderEntityFactory::createReaderFromFile($file->getClientOriginalName());
+      $reader->open($file->getRealPath());
 
-      foreach ($data as $row) {
-        $rows[] = [
-          'name' => $row['name'] ?? null,
-          'description' => $row['description'] ?? null,
-          'price' => $row['price'] ?? 0,
-          'stock' => $row['stock'] ?? 0,
-          'created_at' => now(),
-          'updated_at' => now(),
-        ];
+      $rows = [];
+      $isHeader = true;
+      $headers = [];
+
+      foreach ($reader->getSheetIterator() as $sheet) {
+        foreach ($sheet->getRowIterator() as $row) {
+          $cells = $row->toArray();
+
+          if ($isHeader) {
+            $headers = array_map('strtolower', $cells);
+            $isHeader = false;
+            continue;
+          }
+
+          $rowData = array_combine($headers, $cells);
+
+          $rows[] = [
+            'name'        => $rowData['name'] ?? null,
+            'description' => $rowData['description'] ?? null,
+            'price'       => (float)$rowData['price'] ?? 0,
+            'stock'       => (int)$rowData['stock'] ?? 0,
+            'created_at'  => now(),
+            'updated_at'  => now(),
+          ];
+        }
       }
 
-      return DB::transaction(function () use ($rows) {
-        return $this->mainRepository->bulkInsert($rows);
+      DB::transaction(function () use ($rows) {
+        $this->mainRepository->bulkInsert($rows);
       });
     } catch (\Exception $e) {
       throw $e;

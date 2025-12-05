@@ -24,7 +24,7 @@ class ProductController extends Controller
                 $user->hasAnyRole(['admin', 'cs1', 'cs2']) => $this->service->getProducts(),
                 default => throw new Exception("You do not have any permission to access this endpoint", 403)
             };
-            return response()->json(successResponse("Get products successfully", $products, true));
+            return response()->json(successResponse("Get products successfully", $products->toArray(), true));
         } catch (\Exception $e) {
             $response = errorResponse($e);
             return response()->json($response, $response['status_code']);
@@ -34,14 +34,14 @@ class ProductController extends Controller
     public function show($id)
     {
         $rules = [
-            'id' => 'required|integer|exists:orders,id',
+            'id' => 'required|integer|exists:products,id',
         ];
 
         $errorResponse = validateFormData(['id' => $id], $rules);
         if ($errorResponse) return $errorResponse;
 
         try {
-            $product = $this->service->find($id);
+            $product = $this->service->getProductById($id);
             return response()->json(successResponse("Get product {$product->name} successfully", $product));
         } catch (\Exception $e) {
             $response = errorResponse($e);
@@ -54,7 +54,7 @@ class ProductController extends Controller
         $data = $request->all();
 
         $rules = [
-            'name'  => 'required|string|min:3',
+            'name'  => 'required|string|min:3|unique:products,name',
             'description'  => 'nullable|string|min:5',
             'price' => 'required|numeric|min:1000',
             'stock' => 'required|integer|min:0'
@@ -65,6 +65,33 @@ class ProductController extends Controller
         try {
             $product = $this->service->createProduct($data);
             return response()->json(successResponse("Create product successfully", $product));
+        } catch (\Exception $e) {
+            $response = errorResponse($e);
+            return response()->json($response, $response['status_code']);
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        $data = $request->all();
+        $data['id'] = $id;
+
+        $rules = [
+            'id'          => 'required|numeric|exists:products,id',
+            'name'        => 'sometimes|string|min:3|unique:products,name',
+            'description' => 'sometimes|string|min:5',
+            'price'       => 'sometimes|numeric|min:1000',
+            'stock'       => 'sometimes|integer|min:0',
+            'is_active'   => 'sometimes|boolean'
+        ];
+
+        $errorResponse = validateFormData($data, $rules);
+        if ($errorResponse) return $errorResponse;
+        unset($data['id']);
+
+        try {
+            $product = $this->service->updateProduct($id, $data);
+            return response()->json(successResponse("Update product {$product->name} successfully", $product));
         } catch (\Exception $e) {
             $response = errorResponse($e);
             return response()->json($response, $response['status_code']);

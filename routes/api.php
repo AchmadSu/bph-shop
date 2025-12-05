@@ -36,6 +36,7 @@ Route::middleware(['auth.jwt.cookie'])
         Route::get('products/{id}', 'show');
         Route::middleware('role:admin')->group(function () {
             Route::post('products', 'store');
+            Route::put('products/{id}', 'update');
             Route::post('products/import', 'importExcel');
         });
     });

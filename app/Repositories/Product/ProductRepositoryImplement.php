@@ -63,6 +63,17 @@ class ProductRepositoryImplement extends Eloquent implements ProductRepository
         }
     }
 
+    public function updateProduct(int $id, array $data)
+    {
+        try {
+            $product = $this->find($id);
+            $product->update($data);
+            return $product;
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
+
     public function reduceStock(int $productId, int $qty)
     {
         try {
@@ -76,7 +87,11 @@ class ProductRepositoryImplement extends Eloquent implements ProductRepository
     public function bulkInsert(array $rows)
     {
         try {
-            return $this->model->insert($rows);
+            $this->model->upsert(
+                $rows,
+                ['name'],
+                ['description', 'price', 'stock']
+            );
         } catch (\Exception $e) {
             throw $e;
         }

@@ -10,6 +10,7 @@ interface ProductRepository extends Repository
     public function getAvailableProduct();
     public function find($id);
     public function createProduct(array $data);
+    public function updateProduct(int $id, array $data);
     public function reduceStock(int $productId, int $qty);
     public function bulkInsert(array $rows);
 }
