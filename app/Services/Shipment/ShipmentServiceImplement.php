@@ -25,7 +25,11 @@ class ShipmentServiceImplement extends Service implements ShipmentService
   public function getReadyOrders()
   {
     try {
-      return $this->mainRepository->getReadyOrders();
+      $order = $this->mainRepository->getReadyOrders();
+      if (!$order || empty($order)) {
+        throw new Exception("No order to packing", 404);
+      }
+      return $order;
     } catch (\Exception $e) {
       throw $e;
     }

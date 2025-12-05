@@ -38,47 +38,4 @@ class UserRepositoryImplement extends Eloquent implements UserRepository
             throw $e;
         }
     }
-
-    public function logout()
-    {
-        try {
-            $token = request()->cookie('access_token');
-            if (!$token) {
-                throw new Exception("Token not found", 400);
-            }
-            JWTAuth::setToken($token)->invalidate();
-            cookie()->forget('access_token', '/', null, true, true, false, 'Strict');
-            return successResponse("Logout successfully!");
-        } catch (\Exception $e) {
-            throw $e;
-        }
-    }
-
-    public function register($data)
-    {
-        $array = [
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'email_verified_at' => Carbon::now(),
-            'password' => bcrypt($data['password']),
-            'status' => '1'
-        ];
-        try {
-            return DB::transaction(function () use ($array) {
-                $user = $this->model->create($array);
-                if (!$user || empty($user->id)) {
-                    throw new Exception("User creation failed", 500);
-                }
-                $role = $this->role->where('name', 'user')->first();
-                if (!$role) {
-                    throw new Exception("Role 'user' does not exist", 500);
-                }
-                $user->assignRole('user');
-
-                return successResponse("User has been registered");
-            });
-        } catch (Exception $e) {
-            return errorResponse($e);
-        }
-    }
 }

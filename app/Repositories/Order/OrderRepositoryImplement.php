@@ -51,4 +51,13 @@ class OrderRepositoryImplement extends Eloquent implements OrderRepository
             throw $e;
         }
     }
+
+    public function getWaitingVerificationOrders()
+    {
+        try {
+            return $this->model->where('status', 'awaiting_verification')->paginate(15);
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
 }

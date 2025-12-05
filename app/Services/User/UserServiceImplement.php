@@ -50,13 +50,26 @@ class UserServiceImplement extends Service implements UserService
 
   public function me()
   {
-    return auth()->user();
+    $user = auth()->user()->load(['roles']);
+    $data = [
+      'id' => $user->id,
+      'name' => $user->name,
+      'email' => $user->email,
+      'role' => $user->roles->pluck('name')->first()
+    ];
+    return $data;
   }
 
   public function logout()
   {
     try {
-      return $this->mainRepository->logout();
+      $token = request()->cookie('access_token');
+      if (!$token) {
+        throw new Exception("Token not found", 400);
+      }
+      JWTAuth::setToken($token)->invalidate();
+      cookie()->forget('access_token', '/', null, true, true, false, 'Strict');
+      return successResponse("Logout successfully!");
     } catch (\Exception $e) {
       throw $e;
     }

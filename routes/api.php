@@ -19,6 +19,7 @@ Route::middleware('auth:sanctum')->get('/user', fn(Request $request) => $request
 Route::controller(UserController::class)->group(function () {
     Route::post('auth', 'login');
     Route::middleware(['auth.jwt.cookie'])->group(function () {
+        Route::get('me', 'me');
         Route::post('logout', 'logout');
     });
 });
@@ -52,7 +53,7 @@ Route::middleware(['auth.jwt.cookie'])
     ->group(function () {
         Route::get('cart', 'show');
         Route::post('cart/add', 'add');
-        Route::post('cart/update', 'update');
+        Route::put('cart/update', 'update');
         Route::post('cart/remove', 'remove');
     });
 
@@ -68,6 +69,9 @@ Route::middleware(['auth.jwt.cookie'])
         Route::post('order/checkout', 'checkout');
         Route::get('orders', 'listForUser');
         Route::get('orders/{id}', 'show');
+        Route::middleware('role:cs1')->group(function () {
+            Route::get('payment/waiting', 'waitingVerifyOrders');
+        });
     });
 
 

@@ -40,6 +40,9 @@ class OrderServiceImplement extends Service implements OrderService
     try {
       $auth = auth()->user();
       $order = $this->mainRepository->find($id);
+      if (!$order) {
+        throw new Exception("Order not found", 404);
+      }
       if ($auth->hasExactRoles('buyer') && ($order->user_id !== $auth->id)) {
         throw new Exception("You do not have any permission to access this endpoint", 403);
       }
@@ -123,10 +126,16 @@ class OrderServiceImplement extends Service implements OrderService
       : $action();
   }
 
-
   public function cancelExpiredOrders()
   {
-    $orders = $this->orderModel->where('status', 'pending_payment')->whereNotNull('expired_at')->where('expired_at', '<', now())->get();
+    $orders = $this->orderModel
+      ->where(function ($query) {
+        $query->where('status', 'pending_payment')
+          ->orWhere('status', 'awaiting_verification');
+      })
+      ->whereNotNull('expired_at')
+      ->where('expired_at', '<', now())
+      ->get();
 
     foreach ($orders as $order) {
       $order->status = 'cancelled';
@@ -134,5 +143,20 @@ class OrderServiceImplement extends Service implements OrderService
     }
 
     return $orders->count();
+  }
+
+  public function getWaitingVerificationOrder()
+  {
+    try {
+      $order = $this->mainRepository->getWaitingVerificationOrders();
+      if (!$order) {
+        throw new Exception("No waiting verification orders this time", 404);
+      }
+      $order->load('items.product');
+      $order->load('payment');
+      return $order;
+    } catch (\Exception $e) {
+      throw $e;
+    }
   }
 }

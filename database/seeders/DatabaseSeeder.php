@@ -102,9 +102,8 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
 
-            $order->total_amount = $totalOrderAmount;
-            $order->save();
 
+            $order->total_amount = $totalOrderAmount;
             $paymentStatus = $faker->randomElement(['pending', 'verified', 'rejected']);
 
             Payment::create([
@@ -112,6 +111,16 @@ class DatabaseSeeder extends Seeder
                 'status' => $paymentStatus,
                 'proof_path' => $paymentStatus !== 'pending' ? $faker->imageUrl() : ''
             ]);
+
+            if ($paymentStatus === 'verified') {
+                $order->status = "verified";
+            } else if ($paymentStatus === 'rejected') {
+                $order->status = "cancelled";
+            } else {
+                $order->status = "awaiting_verification";
+            }
+
+            $order->save();
 
             if ($paymentStatus === 'verified') {
                 $shipmentStages = ['packing', 'shipped', 'delivered'];

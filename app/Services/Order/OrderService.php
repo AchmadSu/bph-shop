@@ -12,4 +12,5 @@ interface OrderService extends BaseService
     public function checkout($userId);
     public function verifyPayment(Order $order, bool $isApproved, $useTransaction = true);
     public function cancelExpiredOrders();
+    public function getWaitingVerificationOrder();
 }

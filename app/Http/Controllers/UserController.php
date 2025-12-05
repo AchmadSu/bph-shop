@@ -24,10 +24,20 @@ class UserController extends Controller
 
         try {
             $cookie = $this->service->login($data);
-            $user = $this->service->me();
-            $response = successResponse("Login successfully", $user);
+            $response = successResponse("Login successfully");
             return response()->json($response, $response['status_code'])
                 ->withCookie($cookie);
+        } catch (\Exception $e) {
+            $response = errorResponse($e);
+            return response()->json($response, $response['status_code']);
+        }
+    }
+
+    public function me()
+    {
+        try {
+            $me = $this->service->me();
+            return response()->json(successResponse("Get my personal data successfully", $me));
         } catch (\Exception $e) {
             $response = errorResponse($e);
             return response()->json($response, $response['status_code']);

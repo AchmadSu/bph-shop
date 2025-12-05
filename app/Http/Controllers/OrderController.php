@@ -56,4 +56,15 @@ class OrderController extends Controller
             return response()->json($response, $response['status_code']);
         }
     }
+
+    public function waitingVerifyOrders()
+    {
+        try {
+            $order = $this->orderService->getWaitingVerificationOrder();
+            return response()->json(successResponse("Get waiting verification orders successfully", $order->toArray(), true));
+        } catch (\Exception $e) {
+            $response = errorResponse($e);
+            return response()->json($response, $response['status_code']);
+        }
+    }
 }

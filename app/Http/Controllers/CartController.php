@@ -29,7 +29,7 @@ class CartController extends Controller
     public function add(Request $request)
     {
         $data = $request->all();
-        $required = ['product_id', 'qty'];
+        $required = ['product_id', 'quantity'];
 
         $errorResponse = checkArrayRequired($data, $required);
         if (!empty($errorResponse)) {
@@ -38,7 +38,7 @@ class CartController extends Controller
 
         $rules = [
             'product_id' => 'required|integer|exists:products,id',
-            'qty' => 'required|integer|min:1'
+            'quantity' => 'required|integer|min:1'
         ];
         $errorResponse = validateFormData($data, $rules);
         if (!empty($errorResponse)) {
@@ -46,7 +46,7 @@ class CartController extends Controller
         };
 
         try {
-            $item = $this->cartService->addToCart($request->user()->id, $data['product_id'], $data['qty'] ?? 1);
+            $item = $this->cartService->addToCart($request->user()->id, $data['product_id'], $data['quantity'] ?? 1);
             return response()->json(successResponse("Add product to cart successfully", $item));
         } catch (\Exception $e) {
             $response = errorResponse($e);
@@ -57,7 +57,7 @@ class CartController extends Controller
     public function update(Request $request)
     {
         $data = $request->all();
-        $required = ['product_id', 'qty'];
+        $required = ['product_id', 'quantity'];
         $errorResponse = checkArrayRequired($data, $required);
         if (!empty($errorResponse)) {
             return $errorResponse;
@@ -65,7 +65,7 @@ class CartController extends Controller
 
         $rules = [
             'product_id' => 'required|integer|exists:products,id',
-            'qty' => 'required|integer|min:1'
+            'quantity' => 'required|integer|min:1'
         ];
 
         $errorResponse = validateFormData($data, $rules);
@@ -75,7 +75,7 @@ class CartController extends Controller
 
         try {
             $cart = $this->cartService->getCart($request->user()->id);
-            $item = $this->cartService->updateItem($cart->id, $data['product_id'], $data['qty']);
+            $item = $this->cartService->updateItem($cart->id, $data['product_id'], $data['quantity']);
             return response()->json(successResponse("Update cart successfully", $item));
         } catch (\Exception $e) {
             $response = errorResponse($e);
