@@ -54,9 +54,10 @@ class ProductController extends Controller
         $data = $request->all();
 
         $rules = [
-            'name'  => 'required|string',
-            'price' => 'required|numeric',
-            'stock' => 'required|integer'
+            'name'  => 'required|string|min:3',
+            'description'  => 'nullable|string|min:5',
+            'price' => 'required|numeric|min:1000',
+            'stock' => 'required|integer|min:0'
         ];
 
         $errorResponse = validateFormData($data, $rules);

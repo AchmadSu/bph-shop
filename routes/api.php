@@ -26,7 +26,7 @@ Route::controller(UserController::class)->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| PRODUCT ROUTES (ADMIN ONLY)
+| PRODUCT ROUTES
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth.jwt.cookie'])
@@ -90,10 +90,12 @@ Route::middleware(['auth.jwt.cookie'])
 | SHIPMENT ROUTES (CS2)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth.jwt.cookie', 'role:cs2'])
+Route::middleware(['auth.jwt.cookie'])
     ->controller(ShipmentController::class)
     ->group(function () {
-        Route::get('shipment', 'readyOrders');
-        Route::put('shipment/{orderId}/status/{status}', 'updateStatus');
+        Route::middleware('role:cs2')->group(function () {
+            Route::get('shipment', 'readyOrders');
+            Route::put('shipment/{orderId}/status/{status}', 'updateStatus');
+        });
         Route::get('shipment/{orderId}/logs', 'logs');
     });

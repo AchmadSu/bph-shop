@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\Order\OrderService;
 use Illuminate\Http\Request;
 use App\Services\Shipment\ShipmentService;
+use Exception;
 
 class ShipmentController extends Controller
 {
@@ -74,6 +75,13 @@ class ShipmentController extends Controller
         if ($errorResponse) return $errorResponse;
 
         try {
+            $user = auth()->user();
+            if ($user->hasExactRoles('buyer')) {
+                $order = $this->orderService->find($orderId);
+                if ($order->user_id !== $user->id) {
+                    throw new Exception("You do not have any permission to access this endpoint", 403);
+                }
+            }
             $shipment = $this->shipmentService->getShipmentLogs($orderId);
             return response()->json(successResponse("Get shipment log by order successfully", $shipment->toArray()));
         } catch (\Exception $e) {
