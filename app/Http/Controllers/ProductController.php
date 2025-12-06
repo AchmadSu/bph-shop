@@ -18,12 +18,18 @@ class ProductController extends Controller
     public function index()
     {
         try {
-            $user = auth()->user();
-            $products = match (true) {
-                $user->hasExactRoles('buyer') => $this->service->getAvailableProducts(),
-                $user->hasAnyRole(['admin', 'cs1', 'cs2']) => $this->service->getProducts(),
-                default => throw new Exception("You do not have any permission to access this endpoint", 403)
-            };
+            $products = $this->service->getAvailableProducts();
+            return response()->json(successResponse("Get products successfully", $products->toArray(), true));
+        } catch (\Exception $e) {
+            $response = errorResponse($e);
+            return response()->json($response, $response['status_code']);
+        }
+    }
+
+    public function getAll()
+    {
+        try {
+            $products = $this->service->getProducts();
             return response()->json(successResponse("Get products successfully", $products->toArray(), true));
         } catch (\Exception $e) {
             $response = errorResponse($e);

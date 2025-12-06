@@ -49,7 +49,7 @@ class OrderController extends Controller
     public function listForUser(Request $request)
     {
         try {
-            $orders = $request->user()->orders()->with('items', 'payment')->paginate(15);
+            $orders = $request->user()->orders()->with('items', 'payment')->orderBy('created_at', 'desc')->paginate(15);
             return response()->json(successResponse("Get my order list successfully", $orders->toArray(), true));
         } catch (\Exception $e) {
             $response = errorResponse($e);

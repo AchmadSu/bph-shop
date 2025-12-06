@@ -30,15 +30,17 @@ Route::controller(UserController::class)->group(function () {
 | PRODUCT ROUTES
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth.jwt.cookie'])
-    ->controller(ProductController::class)
+Route::controller(ProductController::class)
     ->group(function () {
         Route::get('products', 'index');
-        Route::get('products/{id}', 'show');
-        Route::middleware('role:admin')->group(function () {
-            Route::post('products', 'store');
-            Route::put('products/{id}', 'update');
-            Route::post('products/import', 'importExcel');
+        Route::middleware(['auth.jwt.cookie'])->group(function () {
+            Route::get('product/{id}', 'show');
+            Route::middleware('role:admin')->group(function () {
+                Route::get('products/all', 'getAll');
+                Route::post('products', 'store');
+                Route::put('products/{id}', 'update');
+                Route::post('products/import', 'importExcel');
+            });
         });
     });
 

@@ -12,7 +12,12 @@ class CancelExpiredOrders extends Command
 
     public function handle(OrderService $orderService)
     {
+        \Log::info("Running cancel-expired-order at: " . now());
+
         $count = $orderService->cancelExpiredOrders();
+
+        \Log::info("Expired orders cancelled: {$count}");
+
         $this->info("Cancelled {$count} orders.");
     }
 }

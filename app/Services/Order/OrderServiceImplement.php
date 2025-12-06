@@ -128,22 +128,15 @@ class OrderServiceImplement extends Service implements OrderService
 
   public function cancelExpiredOrders()
   {
-    $orders = $this->orderModel
-      ->where(function ($query) {
-        $query->where('status', 'pending_payment')
-          ->orWhere('status', 'awaiting_verification');
-      })
+    $expiredOrders = $this->orderModel
+      ->whereIn('status', ['pending_payment', 'awaiting_verification'])
       ->whereNotNull('expired_at')
       ->where('expired_at', '<', now())
-      ->get();
+      ->update(['status' => 'cancelled']);
 
-    foreach ($orders as $order) {
-      $order->status = 'cancelled';
-      $order->save();
-    }
-
-    return $orders->count();
+    return $expiredOrders;
   }
+
 
   public function getWaitingVerificationOrder()
   {

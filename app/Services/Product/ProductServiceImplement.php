@@ -44,6 +44,7 @@ class ProductServiceImplement extends Service implements ProductService
   {
     try {
       $user = auth()->user();
+      dd($user);
       $product = $this->mainRepository->find($id);
       $unAvailableProduct = ($product->stock <= 0 || !$product->is_active);
       if ($user->hasExactRoles('buyer') && $unAvailableProduct) {

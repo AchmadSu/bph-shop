@@ -38,7 +38,7 @@ class ProductRepositoryImplement extends Eloquent implements ProductRepository
             $product = $this->model
                 ->where('is_active', true)
                 ->where('stock', '>', 0)
-                ->paginate($param['paginate'] ?? 15);
+                ->paginate($param['paginate'] ?? 8);
             return $product;
         } catch (\Exception $e) {
             throw $e;
