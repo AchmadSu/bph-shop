@@ -7,7 +7,7 @@ Ikuti langkah-langkah berikut untuk menjalankan project Laravel setelah clone/pu
 ## **1. Clone / Pull Repository**
 Jika belum clone repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/AchmadSu/bph-shop.git
 ```
 Jika sudah clone dan ingin update:
 ```bash
@@ -20,10 +20,6 @@ git pull origin main
 Jalankan perintah berikut untuk menginstall semua package Laravel:
 ```bash
 composer install
-```
-Jika ada package tambahan dibutuhkan:
-```bash
-composer require <package-name>
 ```
 
 ---
@@ -83,5 +79,18 @@ php artisan orders:cancel-expired
 ---
 
 ## **Selesai 🎉**
-Project Laravel berhasil dijalankan. Jika terjadi error atau butuh penjelasan tambahan, silakan cek dokumentasi Laravel atau hubungi tim pengembang.
+Project BPH SHOP berhasil dijalankan. Jika terjadi error atau butuh penjelasan tambahan, silakan cek dokumentasi Laravel atau hubungi melalui:
+📩 Email: ecepentis@gmail.com  
+💬 WhatsApp: wa.me/6289658420438
+
+## **DISCLAIMER 📌**
+Pada soal test-project yang berbunyi:
+"Barang yang ditambahkan ke keranjang pembeli tidak akan langsung mengurangi
+stok yang tersedia. Stok hanya akan berkurang ketika pembayaran berhasil dilakukan dan
+diverifikasi oleh Customer service Layer 1.
+Jika pembeli tidak melakukan pembayaran atau pembayaran gagal dikonfirmasi oleh
+Customer service Layer 1 dalam waktu maksimal 1x24 jam, pesanan akan otomatis
+dibatalkan oleh sistem, dan barang akan kembali tersedia di stok."
+
+Bagi saya pribadi terkesan ambigu, apakah stock berkurang ketika CS1 memverifikasi atau justru saat bukti pembayaran dikirim, karena ada kekhawatiran stock jadi bertambah dengan tidak sesuai, sehingga saya memutuskan flow nya adalah stock benar-benar berkurang ketika order diverifikasi oleh CS1. Sehingga untuk cancel order setelah 24 jam order tidak mendapatkan konfirmasi tidak akan mengembalikan stock hanya mengupdate status order saja. 
 
