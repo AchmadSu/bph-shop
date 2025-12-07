@@ -1,4 +1,4 @@
-# Laravel Project Setup Guide
+# BPH SHOP Project Setup Guide
 
 Ikuti langkah-langkah berikut untuk menjalankan project Laravel setelah clone/pull dari repository.
 
