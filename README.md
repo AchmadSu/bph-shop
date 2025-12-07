@@ -83,6 +83,10 @@ Project BPH SHOP berhasil dijalankan. Jika terjadi error atau butuh penjelasan t
 📩 Email: ecepentis@gmail.com  
 💬 WhatsApp: wa.me/6289658420438
 
+## **POSTMAN DOCUMENTATION**
+Dokumentasi test API dapat anda akses melalui tautan berikut:
+🔗 https://www.postman.com/warped-shuttle-585736/workspace/bph-api
+
 ## **DISCLAIMER 📌**
 Pada soal test-project yang berbunyi:
 "Barang yang ditambahkan ke keranjang pembeli tidak akan langsung mengurangi
