@@ -1,11 +1,12 @@
 # BPH SHOP Project Setup Guide
 
 ## Requirement ✅️ ##
-PHP versi 8.0+
-Laravel versi 9+
-XAMPP
-Composer versi 2.7.0+
-PostgreSQL versi 15+
+1.PHP versi 8.0+
+2.Laravel versi 9+
+3.XAMPP
+4.Composer versi 2.7.0+
+5.PostgreSQL versi 15+
+---
 
 Ikuti langkah-langkah berikut untuk menjalankan project Laravel setelah clone/pull dari repository.
 
