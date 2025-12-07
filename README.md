@@ -1,15 +1,15 @@
 # BPH SHOP Project Setup Guide
 
 ## Requirement ✅️ ##
-1.PHP versi 8.0+
+1. PHP versi 8.0+
 
-2.Laravel versi 9+
+2. Laravel versi 9+
 
-3.XAMPP
+3. XAMPP versi 3.3.0+
 
-4.Composer versi 2.7.0+
+4. Composer versi 2.7.0+
 
-5.PostgreSQL versi 15+
+5. PostgreSQL versi 15+
 
 ---
 
