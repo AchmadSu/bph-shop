@@ -97,5 +97,5 @@ Jika pembeli tidak melakukan pembayaran atau pembayaran gagal dikonfirmasi oleh
 Customer service Layer 1 dalam waktu maksimal 1x24 jam, pesanan akan otomatis
 dibatalkan oleh sistem, dan barang akan kembali tersedia di stok."
 
-Bagi saya pribadi terkesan ambigu, apakah stock berkurang ketika CS1 memverifikasi atau justru saat bukti pembayaran dikirim, karena ada kekhawatiran stock jadi bertambah dengan tidak sesuai, sehingga saya memutuskan flow nya adalah stock benar-benar berkurang ketika order diverifikasi oleh CS1. Sehingga untuk cancel order setelah 24 jam order tidak mendapatkan konfirmasi tidak akan mengembalikan stock hanya mengupdate status order saja. 
+Bagi saya pribadi terkesan ambigu, apakah stock berkurang ketika CS1 memverifikasi atau justru saat bukti pembayaran dikirim, karena ada kekhawatiran stock jadi bertambah dengan tidak sesuai, sehingga saya memutuskan flow nya adalah stock benar-benar berkurang ketika order diverifikasi oleh CS1. Sehingga untuk cancel order setelah 24 jam  tidak mendapatkan konfirmasi dari CS1 maka tidak akan mengembalikan stock dan hanya mengupdate status order saja. 
 
